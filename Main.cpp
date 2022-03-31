@@ -8,7 +8,7 @@ void generate(int* &heap);
 void userInput(int* & heap);
 void add(int* &heap, int data, int index); //Recursive
 void printTree(int* heap);
-void printOutput(int* &heap, int data, int index, int size); //Recursive
+void printOutput(int* &heap, int &size, int* &output, int &x);
 
 int main(){
   int* heap = new int[100];
@@ -41,7 +41,13 @@ int main(){
 }
 
 void generate(int* &heap){
+  int* output = new int[100];
   char* fileName = new char[20];
+
+  for(int i=0; i<1000; i++){
+    output[i] = 0;
+  }
+  
   cout << "Enter the name of the file: (include the '.txt')" << endl;
   cin >> fileName;
   fstream file;
@@ -56,13 +62,33 @@ void generate(int* &heap){
   }
   file.close();
   cout << endl;
+
+  for(int i=1; i<inputNum; i++){
+    cout << heap[i] << " ";
+  }
+  cout << endl;
+  
   printTree(heap);
-  printOutput(heap, heap[1], 1, inputNum);
+  int x = 0;
+  int temp = inputNum;
+  inputNum--;
+  //cout << inputNum << endl;
+  printOutput(heap, inputNum, output, x);
+  for(int i=0; i<temp-1; i++){
+    cout << output[i] << " ";
+  }
+  cout << endl;
 }
 
 void userInput(int* &heap){
+  int* output = new int[100];
   bool entering = true;
   char input[10];
+
+  for(int i=0; i<1000; i++){
+    output[i] = 0;
+  }
+  
   cout << "Enter a number or enter \"done\" to print the tree and output"
        << endl;
   int inputNum = 1;
@@ -82,7 +108,8 @@ void userInput(int* &heap){
 
     if(strcmp(input, "DONE") == false){
       printTree(heap);
-      printOutput(heap, heap[1], 1, inputNum);
+      int x = 0;
+      printOutput(heap, inputNum, output, x);
       entering = false;
     }
     else if(!isNum){
@@ -116,9 +143,52 @@ void add(int* &heap, int data, int index){
 void printTree(int* heap){
 }
 
-void printOutput(int* &heap, int data, int index, int size){
-  for(int i=1; i<size; i++){
-    cout << heap[i] << " ";
+void printOutput(int* &heap, int &size, int* &output, int &x){
+  int num = heap[size];
+  output[x] = heap[1];
+  heap[1] = num;
+  heap[size] = 0;
+  size--;
+  x++;
+  
+  int ind = 1;
+  //cout << heap[ind*2] << endl;
+  while(heap[ind*2] != 0){// && ind*2+1 <= size){
+    if(num < heap[ind*2]){
+      if(heap[ind*2+1] > heap[ind*2]){
+	heap[ind] = heap[ind*2+1];
+        heap[ind*2+1] = num;
+        ind = ind*2+1;
+	//cout << "index" << ind << endl;
+      } else {
+	heap[ind] = heap[ind*2];
+        heap[ind*2] = num;
+        ind = ind*2;
+	//cout <<	"index"	<< ind << endl;
+      }
+    } else {
+      break;
+    }
+
+    /*if(num < heap[ind*2] || num < heap[ind*2+1]){
+      if(num < heap[ind*2]){
+	heap[ind] = heap[ind*2];
+	heap[ind*2] = num;
+	ind = ind*2;
+      } else{
+	heap[ind] = heap[ind*2+1];
+        heap[ind*2+1] = num;
+	ind = ind*2+1;
+      }
+      }*/
   }
-  cout << endl;
+
+  if(size > 1){
+    printOutput(heap, size, output, x);
+  } else if(size == 1){
+    output[x] = heap[1];
+    //cout << heap [1];
+  } else {
+    return;
+  }
 }
